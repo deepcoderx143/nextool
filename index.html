@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexTool - Professional Utilities</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- 1. ADVANCED CSS VARIABLES (Light Premium Palette) --- */
+        :root {
+            --bg-color: #f3f4f6;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --accent-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); /* Indigo to Purple */
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --shadow-soft: 0 10px 40px -10px rgba(0,0,0,0.08);
+            --shadow-hover: 0 20px 50px -12px rgba(99, 102, 241, 0.25);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* --- 2. CANVAS BACKGROUND (The Animation Layer) --- */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Behind everything */
+        }
+
+        /* --- 3. LAYOUT & TYPOGRAPHY --- */
+        .main-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: slideDown 1s ease-out;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 15px;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        p.subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+        }
+
+        /* --- 4. ADVANCED SEARCH BAR --- */
+        .search-container {
+            position: relative;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 20px 60px 20px 30px;
+            font-size: 1rem;
+            border-radius: 50px;
+            border: 1px solid white;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: var(--shadow-soft);
+            transition: all 0.3s ease;
+            color: var(--text-primary);
+        }
+
+        .search-input:focus {
+            transform: scale(1.02);
+            box-shadow: var(--shadow-hover);
+            border-color: #a855f7;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a855f7;
+            font-size: 1.2rem;
+        }
+
+        /* --- 5. GRID SYSTEM --- */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+            padding: 20px 0;
+        }
+
+        /* --- 6. PREMIUM CARDS (Glassmorphism) --- */
+        .tool-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 30px;
+            text-decoration: none;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy effect */
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-soft);
+        }
+
+        /* Card Hover Effects */
+        .tool-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            background: white;
+            box-shadow: var(--shadow-hover);
+            border-color: transparent;
+        }
+
+        .icon-box {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 100%);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #4f46e5;
+            margin-bottom: 20px;
+            transition: transform 0.5s ease;
+        }
+
+        .tool-card:hover .icon-box {
+            transform: rotate(15deg) scale(1.1);
+            background: var(--accent-gradient);
+            color: white;
+        }
+
+        .card-content h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .card-content p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .arrow-icon {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all 0.3s ease;
+            color: #a855f7;
+        }
+
+        .tool-card:hover .arrow-icon {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* --- 7. ANIMATIONS --- */
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .tools-grid > a {
+            animation: fadeInUp 0.8s ease-out forwards;
+            opacity: 0; /* JS will handle delay */
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .tools-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="main-wrapper">
+        <header>
+            <h1>NexTool</h1>
+            <p class="subtitle">A premium suite of intelligent tools designed for modern creators. Free, fast, and secure.</p>
+            
+            <div class="search-container">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search for tools (e.g. PDF, Converter)...">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            </div>
+        </header>
+
+        <div class="tools-grid" id="toolsGrid">
+            
+            <a href="converter.html" class="tool-card" data-name="image converter format png jpg">
+                <div class="icon-box"><i class="fa-solid fa-image"></i></div>
+                <div class="card-content">
+                    <h3>Image Converter</h3>
+                    <p>Transform formats between JPG, PNG, and WEBP locally.</p>
+                </div>
+                <i class="fa-solid fa-arrow-right arrow-icon"></i>
+            </a>
+
+            <a href="pdf-tool.html" class="tool-card" data-name="pdf maker image to pdf document">
+                <div class="icon-box"><i class="fa-solid fa-file-pdf"></i></div>
+                <div class="card-content">
+                    <h3>Image to PDF</h3>
+                    <p>Compile multiple images into a professional PDF document.</p>
+                </div>
+                <i class="fa-solid fa-arrow-right arrow-icon"></i>
+            </a>
+
+            <a href="compress.html" class="tool-card" data-name="compress reduce size optimize">
+                <div class="icon-box"><i class="fa-solid fa-compress"></i></div>
+                <div class="card-content">
+                    <h3>Smart Compress</h3>
+                    <p>Reduce file size by up to 80% without quality loss.</p>
+                </div>
+                <i class="fa-solid fa-arrow-right arrow-icon"></i>
+            </a>
+
+            <a href="text-tools.html" class="tool-card" data-name="text word counter seo">
+                <div class="icon-box"><i class="fa-solid fa-align-left"></i></div>
+                <div class="card-content">
+                    <h3>Text Analyzer</h3>
+                    <p>Count words, characters, and analyze SEO density.</p>
+                </div>
+                <i class="fa-solid fa-arrow-right arrow-icon"></i>
+            </a>
+
+            <a href="whatsapp.html" class="tool-card" data-name="whatsapp chat direct">
+                <div class="icon-box"><i class="fa-brands fa-whatsapp"></i></div>
+                <div class="card-content">
+                    <h3>Direct Chat</h3>
+                    <p>Message on WhatsApp without saving the contact number.</p>
+                </div>
+                <i class="fa-solid fa-arrow-right arrow-icon"></i>
+            </a>
+
+            <a href="age.html" class="tool-card" data-name="age calculator date">
+                <div class="icon-box"><i class="fa-solid fa-calendar-check"></i></div>
+                <div class="card-content">
+                    <h3>Age Calculator</h3>
+                    <p>Calculate precise age in years, months, and days.</p>
+                </div>
+                <i class="fa-solid fa-arrow-right arrow-icon"></i>
+            </a>
+
+        </div>
+    </div>
+
+    <script>
+        // 1. ANIMATION STAGGER LOGIC
+        // Cards ek-ek karke load honge (Smooth feel)
+        document.querySelectorAll('.tool-card').forEach((el, index) => {
+            el.style.animationDelay = `${index * 0.1}s`;
+        });
+
+        // 2. REAL-TIME SEARCH ENGINE
+        const searchInput = document.getElementById('searchInput');
+        const cards = document.querySelectorAll('.tool-card');
+
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            
+            cards.forEach(card => {
+                const name = card.getAttribute('data-name');
+                const title = card.querySelector('h3').innerText.toLowerCase();
+                
+                if (name.includes(term) || title.includes(term)) {
+                    card.style.display = 'flex';
+                    // Re-trigger animation
+                    card.style.animation = 'none';
+                    card.offsetHeight; /* trigger reflow */
+                    card.style.animation = 'fadeInUp 0.5s ease-out forwards';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // 3. ADVANCED PARTICLE BACKGROUND (Canvas)
+        // Ye code background mein floating particles banata hai
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        let particles = [];
+
+        // Resize Canvas automatically
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Particle Class
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.size = Math.random() * 2 + 1; // Random size
+                this.speedX = Math.random() * 1 - 0.5; // Random horizontal speed
+                this.speedY = Math.random() * 1 - 0.5; // Random vertical speed
+                this.color = `rgba(99, 102, 241, ${Math.random() * 0.5})`; // Light Indigo
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                // Bounce off edges
+                if (this.x > width || this.x < 0) this.speedX *= -1;
+                if (this.y > height || this.y < 0) this.speedY *= -1;
+            }
+
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Create 50 Particles
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < 50; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        // Animation Loop
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+
+            // Connect particles with lines if they are close (The "Network" effect)
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 150) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(168, 85, 247, ${0.1 - distance/1500})`; // Fade line
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+
+        initParticles();
+        animate();
+    </script>
+
+</body>
+</html>
